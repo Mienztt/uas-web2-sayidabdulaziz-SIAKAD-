@@ -30,17 +30,17 @@ class MkCrudController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_mk' => 'required|string|max:255|unique:mks',
-            'kode_mk' => 'nullable|string|max:20',
-            'sks' => 'nullable|integer|min:0',
-        ]);
+    $request->validate([
+        'kode_mk' => 'required|unique:mks,kode_mk',
+        'nama_mk' => 'required|string|max:255',
+        'sks' => 'required|integer|min:1|max:6',
+        'semester' => 'required|integer|min:1|max:8',
+    ]);
 
-        Mk::create($request->all());
+    Mk::create($request->all());
 
-        return redirect()->route('admin.mks.index')
-                         ->with('success', 'Mata Kuliah baru berhasil ditambahkan.');
-    }
+    return redirect()->route('admin.mks.index')->with('success', 'Mata Kuliah berhasil ditambahkan!');
+}
 
     /**
      * UPDATE (FORM): Menampilkan formulir edit mk

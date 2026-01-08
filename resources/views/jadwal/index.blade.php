@@ -1,454 +1,205 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Fakultas Komputer</title>
-    <!-- Memuat Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-200 p-4 md:p-8">
+<x-app-layout>
+    <div class="min-h-screen bg-gray-50/50 py-10 font-sans">
+        <div class="max-w-[98%] mx-auto space-y-8">
 
-    {{-- 
-      Cek Role di Awal. 
-      Jika Dosen, 1 prodi = 4 kolom (Waktu, MK, R, Aksi). 
-      Jika bukan, 1 prodi = 3 kolom.
-    --}}
-    @php
-        $isDosen = Auth::user()->hasRole('Dosen');
-        $colPerProdi = $isDosen ? 4 : 3;
-        $totalCols = $colPerProdi * 4; // 4 Prodi
-    @endphp
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
+                <div>
+                    <a href="{{ route('dashboard') }}" class="group inline-flex items-center space-x-2 bg-white border border-gray-200 text-gray-600 px-5 py-2.5 rounded-xl shadow-sm hover:border-indigo-500 hover:text-indigo-600 transition-all">
+                        <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        <span class="font-bold text-sm">Kembali ke Dashboard</span>
+                    </a>
+                </div>
+                <div class="text-right">
+                    <h1 class="text-3xl font-black text-gray-900 tracking-tight">Jadwal Perkuliahan</h1>
+                    <div class="flex items-center justify-end space-x-2 text-sm text-gray-500 font-medium mt-1">
+                        <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-xs font-bold uppercase">Ganjil 2025/2026</span>
+                        <span>&bull;</span>
+                        <span>Fakultas Komputer</span>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Info User Login -->
-    <div class="max-w-full mx-auto bg-white shadow-lg p-4 mb-4 border-l-4 border-indigo-500">
-        Selamat datang, **{{ Auth::user()->name }}**! Anda login sebagai: 
-        @foreach (Auth::user()->getRoleNames() as $role)
-            <span class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full text-xs font-semibold">{{ $role }}</span>
-        @endforeach
-    </div>
-
-    <!-- Pesan Sukses (setelah Charter berhasil) -->
-    @if (session('success'))
-        <div class="max-w-full mx-auto bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 shadow-lg rounded-lg">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    <!-- Kontainer utama untuk 'sheet' -->
-    <div class="max-w-full mx-auto bg-white shadow-lg overflow-hidden">
-
-        <div class="pt-4 pb-2">
-            <h1 class="text-center text-xl font-bold text-gray-800">JADWAL MATA KULIAH PROGRAM S1 SI & BD, D3 KA</h1>
-            <h2 class="text-center text-lg font-bold text-gray-700">SEMESTER GANJIL 2025/2026</h2>
-        </div>
-
-        <!-- Kontainer Tabel -->
-        <div class="overflow-x-auto">
-            <table class="w-full border-collapse border border-gray-500 text-sm">
+            <div class="bg-white rounded-2xl p-6 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.1)] border border-gray-100 flex flex-col md:flex-row items-center justify-between relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full -mr-20 -mt-20 blur-3xl opacity-50"></div>
                 
-                {{-- =================================================================== --}}
-                {{-- ============================ HARI SENIN =========================== --}}
-                {{-- =================================================================== --}}
-                <thead>
-                    <tr class="bg-black text-white font-bold">
-                        <td colspan="{{ $totalCols / 2 }}" class="p-2 border border-gray-500">Semester 3</td>
-                        <td colspan="{{ $totalCols / 2 }}" class="p-2 border border-gray-500 text-right">15 September 2025</td>
-                    </tr>
-                    <tr class="bg-yellow-300 font-bold text-black text-center">
-                        <td colspan="{{ $totalCols }}" class="p-1 border border-gray-500">SENIN</td>
-                    </tr>
-                    <tr class="font-bold text-white text-center">
-                        <td colspan="{{ $colPerProdi }}" class="bg-purple-600 p-1 border border-gray-500">S1 SI</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-blue-600 p-1 border border-gray-500">D3 KA</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-red-600 p-1 border border-gray-500">S1 BD / A</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-red-600 p-1 border border-gray-500">S1 BD / B</td>
-                    </tr>
-                    <tr class="font-bold text-center text-xs bg-gray-100">
-                        <!-- S1 SI -->
-                        <td class="w-24 p-1 border border-gray-500">WAKTU</td>
-                        <td class="w-auto p-1 border border-gray-500">S1 SI</td>
-                        <td class="w-20 p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="w-20 p-1 border border-gray-500">Aksi</td> @endif
-                        <!-- D3 KA -->
-                        <td class="w-24 p-1 border border-gray-500">WAKTU</td>
-                        <td class="w-auto p-1 border border-gray-500">D3 KA</td>
-                        <td class="w-20 p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="w-20 p-1 border border-gray-500">Aksi</td> @endif
-                        <!-- S1 BD / A -->
-                        <td class="w-24 p-1 border border-gray-500">WAKTU</td>
-                        <td class="w-auto p-1 border border-gray-500">S1 BD / A</td>
-                        <td class="w-20 p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="w-20 p-1 border border-gray-500">Aksi</td> @endif
-                        <!-- S1 BD / B -->
-                        <td class="w-24 p-1 border border-gray-500">WAKTU</td>
-                        <td class="w-auto p-1 border border-gray-500">S1 BD / B</td>
-                        <td class="w-20 p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="w-20 p-1 border border-gray-500">Aksi</td> @endif
-                    </tr>
-                </thead>
-                <tbody class="align-top">
-    {{-- Siapkan data Senin --}}
-    @php
-        $senin = $tabelJadwal->get('Senin', collect());
-        $senin_s1_si = $senin->get('S1 SI', collect());
-        $senin_d3_ka = $senin->get('D3 KA', collect());
-        $senin_s1_bda = $senin->get('S1 BD / A', collect());
-        $senin_s1_bdb = $senin->get('S1 BD / B', collect());
+                <div class="flex items-center space-x-5 relative z-10">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 text-white flex items-center justify-center text-xl font-bold shadow-lg shadow-indigo-200">
+                        {{ substr(Auth::user()->name, 0, 1) }}
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Login Session</p>
+                        <h2 class="text-xl font-bold text-gray-800">{{ Auth::user()->name }}</h2>
+                        <div class="flex flex-wrap gap-2 mt-1">
+                            @foreach (Auth::user()->getRoleNames() as $role)
+                                <span class="bg-indigo-50 text-indigo-700 border border-indigo-100 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wide">{{ $role }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        $all_senin_shifts = $shifts->get('Senin', collect());
-        $all_s1_si_shifts = $all_senin_shifts->where('prodi', 'S1 SI');
-        $all_d3_ka_shifts = $all_senin_shifts->where('prodi', 'D3 KA');
-        $all_s1_bda_shifts = $all_senin_shifts->where('prodi', 'S1 BD / A');
-        $all_s1_bdb_shifts = $all_senin_shifts->where('prodi', 'S1 BD / B');
-    @endphp
+            @if (session('success'))
+                <div class="bg-emerald-50 border border-emerald-100 text-emerald-700 p-4 rounded-2xl shadow-sm flex items-center justify-between animate-fade-in-down">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-emerald-100 p-2 rounded-full"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>
+                        <span class="font-bold text-sm">{{ session('success') }}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-emerald-400 hover:text-emerald-700">&times;</button>
+                </div>
+            @endif
 
-    <tr>
-        @php $jadwal = $senin_s1_si->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
-        <td class="bg-yellow-400 p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 07.30 - 10.00 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_si_shifts->firstWhere('jam_mulai', '07:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-        
-        @php $jadwal = $senin_d3_ka->firstWhere('shift.jam_mulai', '08:30:00'); @endphp
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 08.30 - 10.10 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_d3_ka_shifts->firstWhere('jam_mulai', '08:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+            <div class="bg-white rounded-[2rem] shadow-2xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+                
+                @php
+                    $isDosen = Auth::user()->hasRole('Dosen');
+                    $colPerProdi = $isDosen ? 4 : 3;
+                    $totalCols = $colPerProdi * 4; 
+                @endphp
 
-        @php $jadwal = $senin_s1_bda->firstWhere('shift.jam_mulai', '09:10:00'); @endphp
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 09.10 - 10.00 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bda_shifts->firstWhere('jam_mulai', '09:10:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        
+                        {{-- ================= HEADER UTAMA ================= --}}
+                        <thead>
+                            <tr class="bg-slate-900 text-white">
+                                <td colspan="{{ $totalCols / 2 }}" class="p-5 text-left pl-8 font-bold text-sm uppercase tracking-widest text-slate-400">Semester 3</td>
+                                <td colspan="{{ $totalCols / 2 }}" class="p-5 text-right pr-8 font-mono text-sm font-bold text-slate-400">15 September 2025</td>
+                            </tr>
+                        </thead>
 
-        @php $jadwal = $senin_s1_bdb->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 07.30 - 10.00 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bdb_shifts->firstWhere('jam_mulai', '07:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+                        {{-- ================= HARI SENIN ================= --}}
+                        <thead>
+                            <tr class="bg-amber-400 text-slate-900">
+                                <td colspan="{{ $totalCols }}" class="py-3 text-center font-black text-lg tracking-[0.25em] shadow-sm">SENIN</td>
+                            </tr>
+                            <tr class="text-white text-xs font-bold uppercase tracking-wider text-center">
+                                <td colspan="{{ $colPerProdi }}" class="bg-indigo-600 py-3 border-r border-white/10">S1 Sistem Informasi</td>
+                                <td colspan="{{ $colPerProdi }}" class="bg-sky-600 py-3 border-r border-white/10">D3 Komp. Akuntansi</td>
+                                <td colspan="{{ $colPerProdi }}" class="bg-rose-600 py-3 border-r border-white/10">S1 Bisnis Digital (A)</td>
+                                <td colspan="{{ $colPerProdi }}" class="bg-rose-700 py-3">S1 Bisnis Digital (B)</td>
+                            </tr>
+                            <tr class="bg-slate-50 text-slate-500 text-[10px] font-bold uppercase tracking-widest text-center border-b border-slate-200">
+                                @foreach(['S1 SI', 'D3 KA', 'S1 BD / A', 'S1 BD / B'] as $prodi)
+                                    <td class="py-3 w-24 border-r border-slate-200">Jam</td>
+                                    <td class="py-3 border-r border-slate-200">Mata Kuliah / Dosen</td>
+                                    <td class="py-3 w-16 border-r border-slate-200">R</td>
+                                    @if($isDosen) <td class="py-3 w-28 border-r border-slate-200 bg-slate-100">Aksi</td> @endif
+                                @endforeach
+                            </tr>
+                        </thead>
+
+                        <tbody class="text-sm align-top divide-y divide-slate-100">
+                            @php
+                                $senin = $tabelJadwal->get('Senin', collect());
+                                $senin_s1_si = $senin->get('S1 SI', collect());
+                                $senin_d3_ka = $senin->get('D3 KA', collect());
+                                $senin_s1_bda = $senin->get('S1 BD / A', collect());
+                                $senin_s1_bdb = $senin->get('S1 BD / B', collect());
+
+                                $all_senin = $shifts->get('Senin', collect());
+                                $shift_si = $all_senin->where('prodi', 'S1 SI');
+                                $shift_ka = $all_senin->where('prodi', 'D3 KA');
+                                $shift_bda = $all_senin->where('prodi', 'S1 BD / A');
+                                $shift_bdb = $all_senin->where('prodi', 'S1 BD / B');
+                            @endphp
+
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                @php $j = $senin_s1_si->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
+                                <td class="cell-waktu" rowspan="2">@if($j) {{ $j->jam_text }} @else 07.30<br>-<br>10.00 @endif</td>
+                                <td class="cell-mk" rowspan="2">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+                                <td class="cell-ruang" rowspan="2">{{ $j->ruang->nama_ruang ?? '' }}</td>
+                                @if($isDosen) <td class="cell-aksi" rowspan="2">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $shift_si, 'jam' => '07:30:00'])</td> @endif
+
+                                @php $j = $senin_d3_ka->firstWhere('shift.jam_mulai', '08:30:00'); @endphp
+                                <td class="cell-waktu" rowspan="2">@if($j) {{ $j->jam_text }} @else 08.30<br>-<br>10.10 @endif</td>
+                                <td class="cell-mk" rowspan="2">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+                                <td class="cell-ruang" rowspan="2">{{ $j->ruang->nama_ruang ?? '' }}</td>
+                                @if($isDosen) <td class="cell-aksi" rowspan="2">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $shift_ka, 'jam' => '08:30:00'])</td> @endif
+
+                                @php $j = $senin_s1_bda->firstWhere('shift.jam_mulai', '09:10:00'); @endphp
+                                <td class="cell-waktu" rowspan="2">@if($j) {{ $j->jam_text }} @else 09.10<br>-<br>10.00 @endif</td>
+                                <td class="cell-mk" rowspan="2">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+                                <td class="cell-ruang" rowspan="2">{{ $j->ruang->nama_ruang ?? '' }}</td>
+                                @if($isDosen) <td class="cell-aksi" rowspan="2">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $shift_bda, 'jam' => '09:10:00'])</td> @endif
+
+                                @php $j = $senin_s1_bdb->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
+                                <td class="cell-waktu" rowspan="2">@if($j) {{ $j->jam_text }} @else 07.30<br>-<br>10.00 @endif</td>
+                                <td class="cell-mk" rowspan="2">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+                                <td class="cell-ruang" rowspan="2">{{ $j->ruang->nama_ruang ?? '' }}</td>
+                                @if($isDosen) <td class="cell-aksi" rowspan="2">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $shift_bdb, 'jam' => '07:30:00'])</td> @endif
+                            </tr>
+                            <tr></tr> <tr class="hover:bg-slate-50 transition-colors border-t border-slate-100">
+                                @php $j = $senin_s1_si->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
+                                <td class="cell-waktu" rowspan="2">@if($j) {{ $j->jam_text }} @else 10.10<br>-<br>11.50 @endif</td>
+                                <td class="cell-mk" rowspan="2">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+                                <td class="cell-ruang" rowspan="2">{{ $j->ruang->nama_ruang ?? '' }}</td>
+                                @if($isDosen) <td class="cell-aksi" rowspan="2">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $shift_si, 'jam' => '10:10:00'])</td> @endif
+
+                                @php $j = $senin_d3_ka->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
+                                <td class="cell-waktu" rowspan="2">@if($j) {{ $j->jam_text }} @else 10.10<br>-<br>11.50 @endif</td>
+                                <td class="cell-mk" rowspan="2">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+                                <td class="cell-ruang" rowspan="2">{{ $j->ruang->nama_ruang ?? '' }}</td>
+                                @if($isDosen) <td class="cell-aksi" rowspan="2">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $shift_ka, 'jam' => '10:10:00'])</td> @endif
+
+                                @php $j = $senin_s1_bda->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
+                                <td class="cell-waktu" rowspan="2">@if($j) {{ $j->jam_text }} @else 10.10<br>-<br>11.50 @endif</td>
+                                <td class="cell-mk" rowspan="2">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+                                <td class="cell-ruang" rowspan="2">{{ $j->ruang->nama_ruang ?? '' }}</td>
+                                @if($isDosen) <td class="cell-aksi" rowspan="2">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $shift_bda, 'jam' => '10:10:00'])</td> @endif
+
+                                @php $j = $senin_s1_bdb->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
+                                <td class="cell-waktu" rowspan="2">@if($j) {{ $j->jam_text }} @else 10.10<br>-<br>11.00 @endif</td>
+                                <td class="cell-mk" rowspan="2">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+                                <td class="cell-ruang" rowspan="2">{{ $j->ruang->nama_ruang ?? '' }}</td>
+                                @if($isDosen) <td class="cell-aksi" rowspan="2">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $shift_bdb, 'jam' => '10:10:00'])</td> @endif
+                            </tr>
+                            <tr></tr>
+
+                            <tr class="bg-emerald-50 text-emerald-700 font-bold text-[10px] uppercase tracking-widest text-center border-y border-emerald-100">
+                                <td class="py-2">12.00 - 12.30</td><td colspan="{{ $isDosen ? 3 : 2 }}">Istirahat / Shalat</td>
+                                <td class="py-2">12.00 - 12.30</td><td colspan="{{ $isDosen ? 3 : 2 }}">Istirahat / Shalat</td>
+                                <td class="py-2">12.00 - 12.30</td><td colspan="{{ $isDosen ? 3 : 2 }}">Istirahat / Shalat</td>
+                                <td class="py-2">12.00 - 12.30</td><td colspan="{{ $isDosen ? 3 : 2 }}">Istirahat / Shalat</td>
+                            </tr>
+
+                            <tr class="hover:bg-slate-50 transition-colors border-t border-slate-100">
+                                @php $j = $senin_s1_si->firstWhere('shift.jam_mulai', '13:00:00'); @endphp
+                                <td class="cell-waktu" rowspan="2">@if($j) {{ $j->jam_text }} @else 13.00<br>-<br>14.40 @endif</td>
+                                <td class="cell-mk" rowspan="2">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+                                <td class="cell-ruang" rowspan="2">{{ $j->ruang->nama_ruang ?? '' }}</td>
+                                @if($isDosen) <td class="cell-aksi" rowspan="2">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $shift_si, 'jam' => '13:00:00'])</td> @endif
+
+                                @php $j = $senin_d3_ka->firstWhere('shift.jam_mulai', '13:00:00'); @endphp
+                                <td class="cell-waktu" rowspan="2">@if($j) {{ $j->jam_text }} @else 13.00<br>-<br>14.40 @endif</td>
+                                <td class="cell-mk" rowspan="2">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+                                <td class="cell-ruang" rowspan="2">{{ $j->ruang->nama_ruang ?? '' }}</td>
+                                @if($isDosen) <td class="cell-aksi" rowspan="2">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $shift_ka, 'jam' => '13:00:00'])</td> @endif
+
+                                @php $j = $senin_s1_bda->firstWhere('shift.jam_mulai', '12:30:00'); @endphp
+                                <td class="cell-waktu" rowspan="2">@if($j) {{ $j->jam_text }} @else 12.30<br>-<br>13.20 @endif</td>
+                                <td class="cell-mk" rowspan="2">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+                                <td class="cell-ruang" rowspan="2">{{ $j->ruang->nama_ruang ?? '' }}</td>
+                                @if($isDosen) <td class="cell-aksi" rowspan="2">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $shift_bda, 'jam' => '12:30:00'])</td> @endif
+
+                                @php $j = $senin_s1_bdb->firstWhere('shift.jam_mulai', '13:00:00'); @endphp
+                                <td class="cell-waktu" rowspan="2">@if($j) {{ $j->jam_text }} @else 13.00<br>-<br>14.40 @endif</td>
+                                <td class="cell-mk" rowspan="2">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+                                <td class="cell-ruang" rowspan="2">{{ $j->ruang->nama_ruang ?? '' }}</td>
+                                @if($isDosen) <td class="cell-aksi" rowspan="2">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $shift_bdb, 'jam' => '13:00:00'])</td> @endif
+                            </tr>
+                            <tr></tr>
+                        </tbody>
+
+                        {{-- ================= HARI SELASA ================= --}}
+                        {{-- ================= HARI SELASA ================= --}}
+<thead>
+    <tr><td colspan="{{ $totalCols }}" class="h-8 bg-transparent border-none"></td></tr>
+    
+    <tr class="bg-amber-400 text-slate-900">
+        <td colspan="{{ $totalCols }}" class="py-3 text-center font-black text-lg tracking-[0.25em] shadow-sm rounded-t-xl">SELASA</td>
     </tr>
-    <tr> </tr> <tr>
-        @php $jadwal = $senin_s1_si->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 10.10 - 11.50 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_si_shifts->firstWhere('jam_mulai', '10:10:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-
-        @php $jadwal = $senin_d3_ka->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 10.10 - 11.50 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_d3_ka_shifts->firstWhere('jam_mulai', '10:10:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-        
-        @php $jadwal = $senin_s1_bda->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 10.10 - 11.50 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bda_shifts->firstWhere('jam_mulai', '10:10:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-
-        @php $jadwal = $senin_s1_bdb->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 10.10 - 11.00 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bdb_shifts->firstWhere('jam_mulai', '10:10:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-    </tr>
-    <tr> </tr> <tr class="bg-green-200 text-center font-medium">
-        <td class="p-1 border border-gray-500">12.00 - 12.30</td>
-        <td class="p-1 border border-gray-500" colspan="{{ $isDosen ? 3 : 2 }}">Shalat Dzuhur</td>
-        <td class="p-1 border border-gray-500">12.00 - 12.30</td>
-        <td class="p-1 border border-gray-500" colspan="{{ $isDosen ? 3 : 2 }}">Shalat Dzuhur</td>
-        <td class="p-1 border border-gray-500">12.00 - 12.30</td>
-        <td class="p-1 border border-gray-500" colspan="{{ $isDosen ? 3 : 2 }}">Shalat Dzuhur</td>
-        <td class="p-1 border border-gray-500">12.00 - 12.30</td>
-        <td class="p-1 border border-gray-500" colspan="{{ $isDosen ? 3 : 2 }}">Shalat Dzuhur</td>
-    </tr>
-
-    <tr>
-        @php $jadwal = $senin_s1_si->firstWhere('shift.jam_mulai', '13:00:00'); @endphp
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 13.00 - 14.40 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_si_shifts->firstWhere('jam_mulai', '13:00:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-
-        @php $jadwal = $senin_d3_ka->firstWhere('shift.jam_mulai', '13:00:00'); @endphp
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 13.00 - 14.40 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_d3_ka_shifts->firstWhere('jam_mulai', '13:00:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-        
-        @php $jadwal = $senin_s1_bda->firstWhere('shift.jam_mulai', '12:30:00'); @endphp
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 12.30 - 13.20 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bda_shifts->firstWhere('jam_mulai', '12:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-
-        @php $jadwal = $senin_s1_bdb->firstWhere('shift.jam_mulai', '13:00:00'); @endphp
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 13.00 - 14.40 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bdb_shifts->firstWhere('jam_mulai', '13:00:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-    </tr>
-    <tr> </tr>
-
-    <tr>
-        @php $jadwal = $senin_s1_si->firstWhere('shift.jam_mulai', '14:51:00'); @endphp
-        <td class="p-1 border border-gray-500 h-12" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 14.51 - 16.30 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_si_shifts->firstWhere('jam_mulai', '14:51:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-
-        @php $jadwal = $senin_d3_ka->firstWhere('shift.jam_mulai', '14:51:00'); @endphp
-        <td class="p-1 border border-gray-500 h-12" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 14.51 - 16.30 @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_d3_ka_shifts->firstWhere('jam_mulai', '14:51:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-        
-        @php $jadwal = $senin_s1_bda->firstWhere('shift.jam_mulai', '14:51:00'); @endphp
-        <td class="p-1 border border-gray-500 h-12" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bda_shifts->firstWhere('jam_mulai', '14:51:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-
-        @php $jadwal = $senin_s1_bdb->firstWhere('shift.jam_mulai', '14:51:00'); @endphp
-        <td class="p-1 border border-gray-500 h-12" rowspan="2">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" rowspan="2">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" rowspan="2">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bdb_shifts->firstWhere('jam_mulai', '14:51:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-    </tr>
-    <tr> </tr>
-</tbody>
-
-                {{-- =================================================================== --}}
-                {{-- ============================ HARI SELASA ========================== --}}
-                {{-- =================================================================== --}}
-                <thead>
-                    <tr class="bg-yellow-300 font-bold text-black text-center">
-                        <td colspan="{{ $totalCols }}" class="p-1 border border-gray-500">SELASA</td>
-                    </tr>
-                    <tr class="font-bold text-white text-center">
-                        <td colspan="{{ $colPerProdi }}" class="bg-purple-600 p-1 border border-gray-500">S1 SI</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-blue-600 p-1 border border-gray-500">D3 KA</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-red-600 p-1 border border-gray-500">S1 BD / A</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-red-600 p-1 border border-gray-500">S1 BD / B</td>
-                    </tr>
-                    <tr class="font-bold text-center text-xs bg-gray-100">
-                        <!-- S1 SI -->
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">S1 SI</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                        <!-- D3 KA -->
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">D3 KA</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                        <!-- S1 BD / A -->
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">S1 BD / A</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                        <!-- S1 BD / B -->
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">S1 BD / B</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                    </tr>
-                </thead>
-                <tbody class="align-top">
-    {{-- Siapkan data untuk hari Selasa --}}
+</thead>
+<tbody class="text-sm align-top divide-y divide-slate-100 bg-white border border-gray-100">
     @php
         $selasa = $tabelJadwal->get('Selasa', collect());
         $selasa_s1_si = $selasa->get('S1 SI', collect());
@@ -456,744 +207,259 @@
         $selasa_s1_bda = $selasa->get('S1 BD / A', collect());
         $selasa_s1_bdb = $selasa->get('S1 BD / B', collect());
 
-        $all_selasa_shifts = $shifts->get('Selasa', collect());
-        $all_s1_si_shifts = $all_selasa_shifts->where('prodi', 'S1 SI');
-        $all_d3_ka_shifts = $all_selasa_shifts->where('prodi', 'D3 KA');
-        $all_s1_bda_shifts = $all_selasa_shifts->where('prodi', 'S1 BD / A');
-        $all_s1_bdb_shifts = $all_selasa_shifts->where('prodi', 'S1 BD / B');
+        $all_selasa = $shifts->get('Selasa', collect());
+        $sh_si = $all_selasa->where('prodi', 'S1 SI');
+        $sh_ka = $all_selasa->where('prodi', 'D3 KA');
+        $sh_bda = $all_selasa->where('prodi', 'S1 BD / A');
+        $sh_bdb = $all_selasa->where('prodi', 'S1 BD / B');
         
+        // Logika Khusus BD A Sore
         $s1_bda_sore = $selasa_s1_bda->firstWhere('shift.jam_mulai', '13:00:00');
     @endphp
 
-    <tr>
-        @php $jadwal = $selasa_s1_si->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 07.30 - 10.00 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_si_shifts->firstWhere('jam_mulai', '07:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+    <tr class="hover:bg-slate-50 transition-colors">
+        @php $j = $selasa_s1_si->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 07.30<br>-<br>10.00 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_si, 'jam' => '07:30:00'])</td> @endif
 
-        @php $jadwal = $selasa_d3_ka->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 07.30 - 10.00 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_d3_ka_shifts->firstWhere('jam_mulai', '07:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $selasa_d3_ka->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 07.30<br>-<br>10.00 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_ka, 'jam' => '07:30:00'])</td> @endif
 
-        @php $jadwal = $selasa_s1_bda->firstWhere('shift.jam_mulai', '08:20:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 08.20 - 10.00 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bda_shifts->firstWhere('jam_mulai', '08:20:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $selasa_s1_bda->firstWhere('shift.jam_mulai', '08:20:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 08.20<br>-<br>10.00 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_bda, 'jam' => '08:20:00'])</td> @endif
 
-        @php $jadwal = $selasa_s1_bdb->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 07.30 - 10.00 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bdb_shifts->firstWhere('jam_mulai', '07:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $selasa_s1_bdb->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 07.30<br>-<br>10.00 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_bdb, 'jam' => '07:30:00'])</td> @endif
     </tr>
 
-    <tr>
-        @php $jadwal = $selasa_s1_si->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 10.10 - 11.50 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_si_shifts->firstWhere('jam_mulai', '10:10:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+    <tr class="hover:bg-slate-50 transition-colors border-t border-slate-100">
+        @php $j = $selasa_s1_si->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 10.10<br>-<br>11.50 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_si, 'jam' => '10:10:00'])</td> @endif
 
-        @php $jadwal = $selasa_d3_ka->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 10.10 - 11.50 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_d3_ka_shifts->firstWhere('jam_mulai', '10:10:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $selasa_d3_ka->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 10.10<br>-<br>11.50 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_ka, 'jam' => '10:10:00'])</td> @endif
 
-        @php $jadwal = $selasa_s1_bda->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 10.10 - 11.50 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bda_shifts->firstWhere('jam_mulai', '10:10:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $selasa_s1_bda->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 10.10<br>-<br>11.50 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_bda, 'jam' => '10:10:00'])</td> @endif
 
-        @php $jadwal = $selasa_s1_bdb->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 10.10 - 11.50 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bdb_shifts->firstWhere('jam_mulai', '10:10:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $selasa_s1_bdb->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 10.10<br>-<br>11.50 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_bdb, 'jam' => '10:10:00'])</td> @endif
     </tr>
 
-    <tr class="bg-green-200 text-center font-medium">
-        <td class="p-1 border border-gray-500">12.00 - 12.30</td>
-        <td class="p-1 border border-gray-500" colspan="{{ $isDosen ? 3 : 2 }}">Shalat Dzuhur</td>
-        <td class="p-1 border border-gray-500">12.00 - 12.30</td>
-        <td class="p-1 border border-gray-500" colspan="{{ $isDosen ? 3 : 2 }}">Shalat Dzuhur</td>
-        <td class="p-1 border border-gray-500">12.00 - 12.30</td>
-        <td class="p-1 border border-gray-500" colspan="{{ $isDosen ? 3 : 2 }}">Shalat Dzuhur</td>
-        <td class="p-1 border border-gray-500">12.00 - 12.30</td>
-        <td class="p-1 border border-gray-500" colspan="{{ $isDosen ? 3 : 2 }}">Shalat Dzuhur</td>
+    <tr class="bg-emerald-50 text-emerald-700 font-bold text-[10px] uppercase tracking-widest text-center border-y border-emerald-100">
+        <td class="py-2">12.00 - 12.30</td><td colspan="{{ $isDosen ? 3 : 2 }}">Istirahat / Shalat</td>
+        <td class="py-2">12.00 - 12.30</td><td colspan="{{ $isDosen ? 3 : 2 }}">Istirahat / Shalat</td>
+        <td class="py-2">12.00 - 12.30</td><td colspan="{{ $isDosen ? 3 : 2 }}">Istirahat / Shalat</td>
+        <td class="py-2">12.00 - 12.30</td><td colspan="{{ $isDosen ? 3 : 2 }}">Istirahat / Shalat</td>
     </tr>
 
-    <tr>
-        @php $jadwal = $selasa_s1_si->firstWhere('shift.jam_mulai', '12:30:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 12.30 - 13.20 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_si_shifts->firstWhere('jam_mulai', '12:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+    <tr class="hover:bg-slate-50 transition-colors border-t border-slate-100">
+        @php $j = $selasa_s1_si->firstWhere('shift.jam_mulai', '12:30:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 12.30<br>-<br>13.20 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_si, 'jam' => '12:30:00'])</td> @endif
 
-        @php $jadwal = $selasa_d3_ka->firstWhere('shift.jam_mulai', '13:00:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 13.00-13.50 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_d3_ka_shifts->firstWhere('jam_mulai', '13:00:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $selasa_d3_ka->firstWhere('shift.jam_mulai', '13:00:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 13.00<br>-<br>13.50 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_ka, 'jam' => '13:00:00'])</td> @endif
 
-        @php $jadwal = $s1_bda_sore; @endphp
-        <td class="p-1 border border-gray-500" {{ $jadwal ? 'rowspan=2' : '' }}>@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 13.00 - 15.30 @endif</td>
-        <td class="p-1 border border-gray-500" {{ $jadwal ? 'rowspan=2' : '' }}>@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500" {{ $jadwal ? 'rowspan=2' : '' }}>{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle" {{ $jadwal ? 'rowspan=2' : '' }}>
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bda_shifts->firstWhere('jam_mulai', '13:00:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $s1_bda_sore; @endphp
+        <td class="cell-waktu" {{ $j ? 'rowspan=2' : '' }}>@if($j) {{ $j->jam_text }} @else 13.00<br>-<br>15.30 @endif</td>
+        <td class="cell-mk" {{ $j ? 'rowspan=2' : '' }}>@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang" {{ $j ? 'rowspan=2' : '' }}>{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi" {{ $j ? 'rowspan=2' : '' }}>@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_bda, 'jam' => '13:00:00'])</td> @endif
 
-        @php $jadwal = $selasa_s1_bdb->firstWhere('shift.jam_mulai', '12:30:00'); @endphp
-        <td class="p-1 border border-gray-500 bg-yellow-300">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 12.30 - 13.20 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bdb_shifts->firstWhere('jam_mulai', '12:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $selasa_s1_bdb->firstWhere('shift.jam_mulai', '12:30:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 12.30<br>-<br>13.20 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_bdb, 'jam' => '12:30:00'])</td> @endif
     </tr>
 
-    <tr>
-        @php $jadwal = $selasa_s1_si->firstWhere('shift.jam_mulai', '13:30:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 13.30-15.00 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_si_shifts->firstWhere('jam_mulai', '13:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+    <tr class="hover:bg-slate-50 transition-colors border-t border-slate-100">
+        @php $j = $selasa_s1_si->firstWhere('shift.jam_mulai', '13:30:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 13.30<br>-<br>15.00 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_si, 'jam' => '13:30:00'])</td> @endif
 
-        @php $jadwal = $selasa_d3_ka->firstWhere('shift.jam_mulai', '14:00:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 14.00-15.30 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class.p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_d3_ka_shifts->firstWhere('jam_mulai', '14:00:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $selasa_d3_ka->firstWhere('shift.jam_mulai', '14:00:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 14.00<br>-<br>15.30 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_ka, 'jam' => '14:00:00'])</td> @endif
 
         @if(!$s1_bda_sore)
-            @php $jadwal = $selasa_s1_bda->firstWhere('shift.jam_mulai', '15:30:00'); @endphp
-            <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 15.30 - 17.10 @endif</td>
-            <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-            <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-            @if($isDosen)
-            <td class="p-1 border border-gray-500 text-center align-middle">
-                @if($jadwal)
-                    <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                    <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-                @else
-                    @php $shift_kosong = $all_s1_bda_shifts->firstWhere('jam_mulai', '15:30:00'); @endphp
-                    @if($shift_kosong)
-                        <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                    @endif
-                @endif
-            </td>
-            @endif
+            @php $j = $selasa_s1_bda->firstWhere('shift.jam_mulai', '15:30:00'); @endphp
+            <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 15.30-17.10 @endif</td>
+            <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b> @endif</td>
+            <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+            @if($isDosen) <td class="cell-aksi">...</td> @endif
         @endif
 
-        @php $jadwal = $selasa_s1_bdb->firstWhere('shift.jam_mulai', '13:30:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 13.30 - 15.20 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bdb_shifts->firstWhere('jam_mulai', '13:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-    </tr>
-
-    <tr>
-        <td class="p-1 border border-gray-500 h-6"></td><td class="p-1 border border-gray-500"></td><td class="p-1 border border-gray-500"></td>
-        @if($isDosen)<td class="p-1 border border-gray-500"></td>@endif
-        
-        <td class="p-1 border border-gray-500"></td><td class="p-1 border border-gray-500"></td><td class="p-1 border border-gray-500"></td>
-        @if($isDosen)<td class="p-1 border border-gray-500"></td>@endif
-        
-        @if(!$s1_bda_sore)
-            <td class="p-1 border border-gray-500">15.30-17.10</td> <td class="p-1 border border-gray-500"></td> <td class="p-1 border border-gray-500"></td>
-            @if($isDosen)<td class="p-1 border border-gray-500"></td>@endif
-        @else
-            <td class="p-1 border border-gray-500 h-6"></td> <td class="p-1 border border-gray-500"></td> <td class="p-1 border border-gray-500"></td>
-            @if($isDosen)<td class="p-1 border border-gray-500"></td>@endif
-        @endif
-        
-        <td class="p-1 border border-gray-500"></td><td class="p-1 border border-gray-500"></td><td class="p-1 border border-gray-500"></td>
-        @if($isDosen)<td class="p-1 border border-gray-500"></td>@endif
+        @php $j = $selasa_s1_bdb->firstWhere('shift.jam_mulai', '13:30:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 13.30<br>-<br>15.20 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_bdb, 'jam' => '13:30:00'])</td> @endif
     </tr>
 </tbody>
-
-                {{-- =================================================================== --}}
-                {{-- ============================ HARI RABU ============================ --}}
-                {{-- =================================================================== --}}
-                
-                <!-- (Terapkan logika $isDosen, $colPerProdi, dan $totalCols yang sama untuk <thead> hari Rabu) -->
-                <thead>
-                    <tr class="bg-yellow-300 font-bold text-black text-center">
-                        <td colspan="{{ $totalCols }}" class="p-1 border border-gray-500">RABU</td>
-                    </tr>
-                    <!-- (Header Prodi & Sub-header + Aksi) -->
-                    <tr class="font-bold text-white text-center">
-                        <td colspan="{{ $colPerProdi }}" class="bg-purple-600 p-1 border border-gray-500">S1 SI</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-blue-600 p-1 border border-gray-500">D3 KA</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-red-600 p-1 border border-gray-500">S1 BD / A</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-red-600 p-1 border border-gray-500">S1 BD / B</td>
-                    </tr>
-                    <tr class="font-bold text-center text-xs bg-gray-100">
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">S1 SI</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">D3 KA</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">S1 BD / A</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">S1 BD / B</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                    </tr>
-                </thead>
-                <tbody class="align-top">
-    {{-- Siapkan data untuk hari Rabu --}}
+{{-- ================= HARI RABU ================= --}}
+<thead>
+    <tr><td colspan="{{ $totalCols }}" class="h-8 bg-transparent border-none"></td></tr>
+    
+    <tr class="bg-amber-400 text-slate-900">
+        <td colspan="{{ $totalCols }}" class="py-3 text-center font-black text-lg tracking-[0.25em] shadow-sm rounded-t-xl">RABU</td>
+    </tr>
+</thead>
+<tbody class="text-sm align-top divide-y divide-slate-100 bg-white border border-gray-100">
     @php
         $rabu = $tabelJadwal->get('Rabu', collect());
-        $rabu_s1_si = $rabu->get('S1 SI', collect());
-        $rabu_d3_ka = $rabu->get('D3 KA', collect());
-        $rabu_s1_bda = $rabu->get('S1 BD / A', collect());
-        $rabu_s1_bdb = $rabu->get('S1 BD / B', collect());
+        $r_si = $rabu->get('S1 SI', collect()); $r_ka = $rabu->get('D3 KA', collect());
+        $r_bda = $rabu->get('S1 BD / A', collect()); $r_bdb = $rabu->get('S1 BD / B', collect());
 
-        $all_rabu_shifts = $shifts->get('Rabu', collect());
-        $all_s1_si_shifts = $all_rabu_shifts->where('prodi', 'S1 SI');
-        $all_d3_ka_shifts = $all_rabu_shifts->where('prodi', 'D3 KA');
-        $all_s1_bda_shifts = $all_rabu_shifts->where('prodi', 'S1 BD / A');
-        $all_s1_bdb_shifts = $all_rabu_shifts->where('prodi', 'S1 BD / B');
+        $all_rabu = $shifts->get('Rabu', collect());
+        $sh_si = $all_rabu->where('prodi', 'S1 SI'); $sh_ka = $all_rabu->where('prodi', 'D3 KA');
+        $sh_bda = $all_rabu->where('prodi', 'S1 BD / A'); $sh_bdb = $all_rabu->where('prodi', 'S1 BD / B');
     @endphp
 
-    <!-- Baris 1: Blok Pagi (07.30) -->
-    <tr>
-        <!-- S1 SI (Baris 1) -->
-        @php $jadwal = $rabu_s1_si->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 07.30 - 09.10 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_si_shifts->firstWhere('jam_mulai', '07:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+    <tr class="hover:bg-slate-50 transition-colors">
+        @php $j = $r_si->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 07.30<br>-<br>09.10 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_si, 'jam' => '07:30:00'])</td> @endif
         
-        <!-- D3 KA (Baris 1) - TANPA ROWSPAN -->
-        @php $jadwal = $rabu_d3_ka->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
-        <td class="p-1 border border-gray-500 bg-yellow-300">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 07.30 - 10.00 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_d3_ka_shifts->firstWhere('jam_mulai', '07:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $r_ka->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 07.30<br>-<br>10.00 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_ka, 'jam' => '07:30:00'])</td> @endif
 
-        <!-- S1 BD / A (Baris 1) - TANPA ROWSPAN -->
-        @php $jadwal = $rabu_s1_bda->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
-        <td class="p-1 border border-gray-500 bg-yellow-300">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 07.30 - 10.00 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bda_shifts->firstWhere('jam_mulai', '07:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $r_bda->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 07.30<br>-<br>10.00 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_bda, 'jam' => '07:30:00'])</td> @endif
 
-        <!-- S1 BD / B (Baris 1) - TANPA ROWSPAN -->
-        @php $jadwal = $rabu_s1_bdb->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
-        <td class="p-1 border border-gray-500 bg-yellow-300">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 07.30 - 10.00 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bdb_shifts->firstWhere('jam_mulai', '07:30:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $r_bdb->firstWhere('shift.jam_mulai', '07:30:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 07.30<br>-<br>10.00 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_bdb, 'jam' => '07:30:00'])</td> @endif
     </tr>
 
-    <!-- Baris 2: Blok Pagi (09.20) - RENDER SEMUA KOLOM -->
-    <tr>
-        <!-- S1 SI (Baris 2) -->
-        @php $jadwal = $rabu_s1_si->firstWhere('shift.jam_mulai', '09:20:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 09.20-10.10 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_si_shifts->firstWhere('jam_mulai', '09:20:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+    <tr class="hover:bg-slate-50 transition-colors border-t border-slate-100">
+        @php $j = $r_si->firstWhere('shift.jam_mulai', '09:20:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 09.20<br>-<br>10.10 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_si, 'jam' => '09:20:00'])</td> @endif
         
-        <!-- D3 KA (Baris 2) - KOSONG -->
-        @php $jadwal = $rabu_d3_ka->firstWhere('shift.jam_mulai', '09:20:00'); @endphp <!-- (Mencari shift yg tidak ada) -->
-        <td class="p-1 border border-gray-500"></td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_d3_ka_shifts->firstWhere('jam_mulai', '09:20:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-
-        <!-- S1 BD / A (Baris 2) - KOSONG -->
-        @php $jadwal = $rabu_s1_bda->firstWhere('shift.jam_mulai', '09:20:00'); @endphp
-        <td class="p-1 border border-gray-500"></td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bda_shifts->firstWhere('jam_mulai', '09:20:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-
-        <!-- S1 BD / B (Baris 2) - KOSONG -->
-        @php $jadwal = $rabu_s1_bdb->firstWhere('shift.jam_mulai', '09:20:00'); @endphp
-        <td class="p-1 border border-gray-500"></td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bdb_shifts->firstWhere('jam_mulai', '09:20:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        <td class="cell-waktu"></td><td class="cell-mk"></td><td class="cell-ruang"></td>@if($isDosen)<td class="cell-aksi"></td>@endif
+        <td class="cell-waktu"></td><td class="cell-mk"></td><td class="cell-ruang"></td>@if($isDosen)<td class="cell-aksi"></td>@endif
+        <td class="cell-waktu"></td><td class="cell-mk"></td><td class="cell-ruang"></td>@if($isDosen)<td class="cell-aksi"></td>@endif
     </tr>
 
-    <!-- Baris 3: Blok Siang (10.10) -->
-    <tr>
-        <!-- S1 SI -->
-        @php $jadwal = $rabu_s1_si->firstWhere('shift.jam_mulai', '10:20:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 10.20 - 12.00 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_si_shifts->firstWhere('jam_mulai', '10:20:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
-        
-        <!-- D3 KA -->
-        @php $jadwal = $rabu_d3_ka->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 10.10 - 11.50 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_d3_ka_shifts->firstWhere('jam_mulai', '10:10:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+    <tr class="hover:bg-slate-50 transition-colors border-t border-slate-100">
+        @php $j = $r_si->firstWhere('shift.jam_mulai', '10:20:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 10.20<br>-<br>12.00 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_si, 'jam' => '10:20:00'])</td> @endif
 
-        <!-- S1 BD / A -->
-        @php $jadwal = $rabu_s1_bda->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 10.10 - 11.50 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bda_shifts->firstWhere('jam_mulai', '10:10:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $r_ka->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 10.10<br>-<br>11.50 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_ka, 'jam' => '10:10:00'])</td> @endif
 
-        <!-- S1 BD / B -->
-        @php $jadwal = $rabu_s1_bdb->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
-        <td class="p-1 border border-gray-500 bg-yellow-300">@if($jadwal) {{ \Carbon\Carbon::parse($jadwal->shift->jam_mulai)->format('H:i') }} - {{ \Carbon\Carbon::parse($jadwal->shift->jam_selesai)->format('H:i') }} @else 10.10 - 11.50 @endif</td>
-        <td class="p-1 border border-gray-500">@if($jadwal) {{ $jadwal->mk->nama_mk }}<br>{{ $jadwal->dosen->nama_dosen }} @endif</td>
-        <td class="p-1 border border-gray-500">{{ $jadwal->ruang->nama_ruang ?? '' }}</td>
-        @if($isDosen)
-        <td class="p-1 border border-gray-500 text-center align-middle">
-            @if($jadwal)
-                <button class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-1 px-2 rounded mb-1 w-full">Barter</button>
-                <button class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-1 px-2 rounded w-full">Pindah</button>
-            @else
-                @php $shift_kosong = $all_s1_bdb_shifts->firstWhere('jam_mulai', '10:10:00'); @endphp
-                @if($shift_kosong)
-                    <a href="{{ route('dosen.charter.create', $shift_kosong->id) }}" class="bg-green-500 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">Charter</a>
-                @endif
-            @endif
-        </td>
-        @endif
+        @php $j = $r_bda->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 10.10<br>-<br>11.50 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_bda, 'jam' => '10:10:00'])</td> @endif
+
+        @php $j = $r_bdb->firstWhere('shift.jam_mulai', '10:10:00'); @endphp
+        <td class="cell-waktu">@if($j) {{ $j->jam_text }} @else 10.10<br>-<br>11.50 @endif</td>
+        <td class="cell-mk">@if($j) <b>{{ $j->mk->nama_mk }}</b><br><span class="badge-dosen">{{ $j->dosen->nama_dosen }}</span> @endif</td>
+        <td class="cell-ruang">{{ $j->ruang->nama_ruang ?? '' }}</td>
+        @if($isDosen) <td class="cell-aksi">@include('jadwal.partials.aksi', ['jadwal' => $j, 'shifts' => $sh_bdb, 'jam' => '10:10:00'])</td> @endif
     </tr>
-    
-    <!-- Baris 4: Shalat Dzuhur (Statis) -->
-    <tr class="bg-green-200 text-center font-medium">
-        <td class="p-1 border border-gray-500">12.00 - 12.30</td>
-        <td class="p-1 border border-gray-500" colspan="{{ $isDosen ? 3 : 2 }}">Shalat Dzuhur</td>
-        <td class="p-1 border border-gray-500">12.00 - 12.30</td>
-        <td class="p-1 border border-gray-500" colspan="{{ $isDosen ? 3 : 2 }}">Shalat Dzuhur</td>
-        <td class="p-1 border border-gray-500">12.00 - 12.30</td>
-        <td class="p-1 border border-gray-500" colspan="{{ $isDosen ? 3 : 2 }}">Shalat Dzuhur</td>
-        <td class="p-1 border border-gray-500">12.00 - 12.30</td>
-        <td class="p-1 border border-gray-500" colspan="{{ $isDosen ? 3 : 2 }}">Shalat Dzuhur</td>
+
+    <tr class="bg-emerald-50 text-emerald-700 font-bold text-[10px] uppercase tracking-widest text-center border-y border-emerald-100">
+        <td class="py-2">12.00 - 12.30</td><td colspan="{{ $isDosen ? 3 : 2 }}">Istirahat / Shalat</td>
+        <td class="py-2">12.00 - 12.30</td><td colspan="{{ $isDosen ? 3 : 2 }}">Istirahat / Shalat</td>
+        <td class="py-2">12.00 - 12.30</td><td colspan="{{ $isDosen ? 3 : 2 }}">Istirahat / Shalat</td>
+        <td class="py-2">12.00 - 12.30</td><td colspan="{{ $isDosen ? 3 : 2 }}">Istirahat / Shalat</td>
     </tr>
 </tbody>
-              
+{{-- ================= HARI KAMIS ================= --}}
+<thead>
+    <tr><td colspan="{{ $totalCols }}" class="h-8 bg-transparent border-none"></td></tr>
+    <tr class="bg-amber-400 text-slate-900">
+        <td colspan="{{ $totalCols }}" class="py-3 text-center font-black text-lg tracking-[0.25em] shadow-sm rounded-t-xl">KAMIS</td>
+    </tr>
+</thead>
+<tbody class="text-sm align-top divide-y divide-slate-100 bg-white border border-gray-100">
+    <tr class="hover:bg-slate-50 transition-colors">
+        <td colspan="{{ $totalCols }}" class="p-8 text-center text-gray-400 italic">
+            Data jadwal Kamis belum dimuat. Silakan salin logika PHP kamu di sini.
+        </td>
+    </tr>
+</tbody>
 
-                {{-- =================================================================== --}}
-                {{-- ============================ HARI KAMIS =========================== --}}
-                {{-- =================================================================== --}}
-                
-                <!-- (Terapkan logika $isDosen, $colPerProdi, dan $totalCols yang sama untuk <thead> hari Kamis) -->
-                <thead>
-                    <tr class="bg-yellow-300 font-bold text-black text-center">
-                        <td colspan="{{ $totalCols }}" class="p-1 border border-gray-500">KAMIS</td>
-                    </tr>
-                    <!-- (Header Prodi & Sub-header + Aksi) -->
-                    <tr class="font-bold text-white text-center">
-                        <td colspan="{{ $colPerProdi }}" class="bg-purple-600 p-1 border border-gray-500">S1 SI</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-blue-600 p-1 border border-gray-500">D3 KA</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-red-600 p-1 border border-gray-500">S1 BD / A</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-red-600 p-1 border border-gray-500">S1 BD / B</td>
-                    </tr>
-                    <tr class="font-bold text-center text-xs bg-gray-100">
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">S1 SI</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">D3 KA</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">S1 BD / A</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">S1 BD / B</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                    </tr>
-                </thead>
-                <!-- (Terapkan logika @if($isDosen) ... @endif yang sama untuk <tbody> hari Kamis) -->
-                <tbody class="align-top">
-                     <!-- ... (Logika <tbody> Kamis dengan @if($isDosen) ... @endif) ... -->
-                </tbody>
-
-                {{-- =================================================================== --}}
-                {{-- ============================ HARI JUMAT =========================== --}}
-                {{-- =================================================================== --}}
-                
-                <!-- (Terapkan logika $isDosen, $colPerProdi, dan $totalCols yang sama untuk <thead> hari Jumat) -->
-                <thead>
-                    <tr class="bg-yellow-300 font-bold text-black text-center">
-                        <td colspan="{{ $totalCols }}" class="p-1 border border-gray-500">JUMAT</td>
-                    </tr>
-                    <!-- (Header Prodi & Sub-header + Aksi) -->
-                    <tr class="font-bold text-white text-center">
-                        <td colspan="{{ $colPerProdi }}" class="bg-purple-600 p-1 border border-gray-500">S1 SI</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-blue-600 p-1 border border-gray-500">D3 KA</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-red-600 p-1 border border-gray-500">S1 BD / A</td>
-                        <td colspan="{{ $colPerProdi }}" class="bg-red-600 p-1 border border-gray-500">S1 BD / B</td>
-                    </tr>
-                    <tr class="font-bold text-center text-xs bg-gray-100">
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">S1 SI</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">D3 KA</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">S1 BD / A</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                        <td class="p-1 border border-gray-500">WAKTU</td>
-                        <td class="p-1 border border-gray-500">S1 BD / B</td>
-                        <td class="p-1 border border-gray-500">R</td>
-                        @if($isDosen) <td class="p-1 border border-gray-500">Aksi</td> @endif
-                    </tr>
-                </thead>
-                <!-- (Terapkan logika @if($isDosen) ... @endif yang sama untuk <tbody> hari Jumat) -->
-                <tbody class="align-top">
-                     <!-- ... (Logika <tbody> Jumat dengan @if($isDosen) ... @endif) ... -->
-                </tbody>
-            </table>
+{{-- ================= HARI JUMAT ================= --}}
+<thead>
+    <tr><td colspan="{{ $totalCols }}" class="h-8 bg-transparent border-none"></td></tr>
+    <tr class="bg-amber-400 text-slate-900">
+        <td colspan="{{ $totalCols }}" class="py-3 text-center font-black text-lg tracking-[0.25em] shadow-sm rounded-t-xl">JUMAT</td>
+    </tr>
+</thead>
+<tbody class="text-sm align-top divide-y divide-slate-100 bg-white border border-gray-100">
+    <tr class="hover:bg-slate-50 transition-colors">
+        <td colspan="{{ $totalCols }}" class="p-8 text-center text-gray-400 italic">
+             Data jadwal Jumat belum dimuat. Silakan salin logika PHP kamu di sini.
+        </td>
+    </tr>
+</tbody>
+                    </table>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <!-- Bagian Bawah (Tab Bar) -->
-        <div class="flex items-center space-x-1 p-1 bg-gray-100 border-t border-gray-300">
-            <svg class="h-4 w-4 text-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
-            <button class="flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded"><span>R1</span></button>
-            <button class="px-3 py-1 text-sm font-medium text-blue-700 bg-white border-b-4 border-blue-600">R3</button>
-            <button class="flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded"><span>R5</span></button>
-            <button class="flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded"><span>R7</span></button>
-            <button class="flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded"><span>NR1</span></button>
-            <button class="flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded"><span>NR3</span></button>
-            <button class="flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded"><span>NR5</span></button>
-            <button class="flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded"><span>NR7</span></button>
-            <button class="flex items-center px-2 py-1 text-sm text-gray-700 hover:bg-gray-200 rounded"><span>RUANG</span></button>
-        </div>
-
-    </div> 
-</body>
-</html>
+    <style>
+        .cell-waktu { @apply p-3 border-r border-slate-100 text-center font-mono text-xs text-slate-500 bg-slate-50/50; }
+        .cell-mk { @apply p-3 border-r border-slate-100 align-middle; }
+        .cell-ruang { @apply p-3 border-r border-slate-100 text-center font-bold text-slate-700 bg-slate-50/30; }
+        .cell-aksi { @apply p-2 border-r border-slate-100 text-center align-middle bg-slate-50/50; }
+        .badge-dosen { @apply text-[10px] text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 mt-1 inline-block; }
+    </style>
+</x-app-layout>

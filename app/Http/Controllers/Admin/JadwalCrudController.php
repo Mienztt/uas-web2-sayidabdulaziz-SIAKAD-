@@ -86,7 +86,7 @@ class JadwalCrudController extends Controller
         }
 
         // Simpan hanya kolom yang ada di database
-        Jadwal::create($request->only(['dosen_id', 'mk_id', 'ruang_id', 'shift_id']));
+        Jadwal::create($request->only(['dosen_id', 'mk_id', 'ruang_id', 'shift_id', 'kelas_id']));
 
         return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil ditambahkan!');
     }
@@ -139,7 +139,7 @@ class JadwalCrudController extends Controller
             return redirect()->back()->withInput()->withErrors(['ruang_id' => "Gagal Update: Ruangan sudah terpakai."]);
         }
 
-        $jadwal->update($request->only(['dosen_id', 'mk_id', 'ruang_id', 'shift_id']));
+       $jadwal->update($request->only(['dosen_id', 'mk_id', 'ruang_id', 'shift_id', 'kelas_id']));
 
         return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil diperbarui.');
     }

@@ -14,83 +14,52 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // Reset cached roles and permissions
+        // Reset cached roles and permissions (Penting!)
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // == BUAT PERMISSIONS (IZIN AKSI) ==
-        // Izin dasar
-        Permission::create(['name' => 'view jadwal_ui']); // Izin lihat UI Google Sheet
-
-        // Izin Admin/Kaprodi/Dekan
-        Permission::create(['name' => 'manage data_master']); // CRUD Dosen, MK, Ruang, Kelas, Shift
-        Permission::create(['name' => 'manage jadwal_crud']); // CRUD di /admin/jadwal
-        
-        // Izin Dekan
-        Permission::create(['name' => 'create surat_tugas']); // Hanya Dekan 
-
-        // Izin Dosen
-        Permission::create(['name' => 'do charter']); // 
-        Permission::create(['name' => 'do barter']); // 
-        Permission::create(['name' => 'request pindah']); 
-
-        // Izin Kosma
-        Permission::create(['name' => 'approve pindah_jadwal']); // 
+        // == 1. BUAT PERMISSIONS (Gunakan firstOrCreate agar tidak duplikat) ==
+        $p1 = Permission::firstOrCreate(['name' => 'view jadwal_ui']);
+        $p2 = Permission::firstOrCreate(['name' => 'manage data_master']);
+        $p3 = Permission::firstOrCreate(['name' => 'manage jadwal_crud']);
+        $p4 = Permission::firstOrCreate(['name' => 'create surat_tugas']);
+        $p5 = Permission::firstOrCreate(['name' => 'do charter']);
+        $p6 = Permission::firstOrCreate(['name' => 'do barter']);
+        $p7 = Permission::firstOrCreate(['name' => 'request pindah']);
+        $p8 = Permission::firstOrCreate(['name' => 'approve pindah_jadwal']);
 
 
-        // == BUAT ROLES (PERAN) ==
-        // 
-        $roleDekan = Role::create(['name' => 'Dekan']);
-        $roleKaprodi = Role::create(['name' => 'Kaprodi']);
-        $roleSekprodi = Role::create(['name' => 'Sekprodi']);
-        $roleDosen = Role::create(['name' => 'Dosen']);
-        $roleKosma = Role::create(['name' => 'Kosma']);
-        $roleMahasiswa = Role::create(['name' => 'Mahasiswa']);
+        // == 2. BUAT ROLES (Gunakan firstOrCreate) ==
+        $roleDekan     = Role::firstOrCreate(['name' => 'Dekan']);
+        $roleKaprodi   = Role::firstOrCreate(['name' => 'Kaprodi']);
+        $roleSekprodi  = Role::firstOrCreate(['name' => 'Sekprodi']);
+        $roleDosen     = Role::firstOrCreate(['name' => 'Dosen']);
+        $roleKosma     = Role::firstOrCreate(['name' => 'Kosma']);
+        $roleMahasiswa = Role::firstOrCreate(['name' => 'Mahasiswa']);
 
         
-        // == BERIKAN PERMISSIONS KE ROLES ==
+        // == 3. SYNC PERMISSIONS KE ROLES ==
+        // Gunakan syncPermissions agar tidak menumpuk izin yang sama berkali-kali
 
-        // Dekan: Bisa semua + buat Surat Tugas 
-        $roleDekan->givePermissionTo([
-            'view jadwal_ui',
-            'manage data_master',
-            'manage jadwal_crud',
-            'create surat_tugas' // Izin spesial Dekan
-        ]);
+        // Dekan
+        $roleDekan->syncPermissions(['view jadwal_ui', 'manage data_master', 'manage jadwal_crud', 'create surat_tugas']);
 
-        // Kaprodi: Bisa semua data master, tapi tidak bisa buat Surat Tugas 
-        $roleKaprodi->givePermissionTo([
-            'view jadwal_ui',
-            'manage data_master',
-            'manage jadwal_crud'
-        ]);
+        // Kaprodi & Sekprodi
+        $roleKaprodi->syncPermissions(['view jadwal_ui', 'manage data_master', 'manage jadwal_crud']);
+        $roleSekprodi->syncPermissions(['view jadwal_ui', 'manage data_master', 'manage jadwal_crud']);
 
-        // Sekprodi: (Asumsi sama dengan Kaprodi untuk saat ini)
-        $roleSekprodi->givePermissionTo([
-            'view jadwal_ui',
-            'manage data_master',
-            'manage jadwal_crud'
-        ]);
+        // Dosen
+        $roleDosen->syncPermissions(['view jadwal_ui', 'do charter', 'do barter', 'request pindah']);
 
-        // Dosen: Bisa lihat jadwal & aksi khusus 
-        $roleDosen->givePermissionTo([
-            'view jadwal_ui',
-            'do charter',
-            'do barter',
-            'request pindah'
-        ]);
-
-        // Kosma: Bisa lihat jadwal & approve/reject 
-        $roleKosma->givePermissionTo([
-            'view jadwal_ui',
-            'approve pindah_jadwal'
-        ]);
+        // Kosma
+        $roleKosma->syncPermissions(['view jadwal_ui', 'approve pindah_jadwal']);
         
-        // Mahasiswa: Hanya bisa lihat jadwal
-        $roleMahasiswa->givePermissionTo('view jadwal_ui');
+        // Mahasiswa
+        $roleMahasiswa->syncPermissions(['view jadwal_ui']);
 
         
-        // == ASSIGN ROLE KE USER PERTAMA ==
-        // Kita anggap user pertama (ID 1) adalah Dekan
+        // == 4. ASSIGN ROLE KE USER (Opsional di sini) ==
+        // Catatan: Jika kamu sudah membuat Dekan di DatabaseSeeder, 
+        // bagian ini boleh dikosongkan agar tidak bentrok.
         $userAdmin = User::first(); 
         if ($userAdmin) {
             $userAdmin->assignRole('Dekan');

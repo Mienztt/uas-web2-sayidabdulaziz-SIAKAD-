@@ -1,61 +1,69 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Tambah Mahasiswa Baru') }}
-        </h2>
-    </x-slot>
+    <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div class="sm:mx-auto sm:w-full sm:max-w-md">
+            <h2 class="text-center text-3xl font-extrabold text-gray-900">
+                Tambah Mahasiswa Baru
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                Lengkapi data di bawah ini dengan benar.
+            </p>
+        </div>
 
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-xl">
+            <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
                 
-                {{-- PENTING: Atribut enctype wajib ada untuk upload file --}}
-                <form action="{{ route('mahasiswa.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('admin.mahasiswa.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700">NIM</label>
-                            <input type="text" name="nim" value="{{ old('nim') }}" class="w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500" required>
-                            @error('nim') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
-                            <input type="text" name="nama" value="{{ old('nama') }}" class="w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500" required>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700">Program Studi</label>
-                            <select name="prodi_id" class="w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500" required>
-                                <option value="">-- Pilih Prodi --</option>
-                                @foreach($prodi as $p)
-                                    <option value="{{ $p->id }}">{{ $p->nama_prodi }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700">Dosen Pembimbing</label>
-                            <select name="dosen_pembimbing_id" class="w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500">
-                                <option value="">-- Pilih Dosen (Opsional) --</option>
-                                @foreach($dosens as $d)
-                                    <option value="{{ $d->id }}">{{ $d->nama_dosen }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="mb-4 md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700">Foto Profil</label>
-                            <input type="file" name="gambar_profil" class="mt-1 block w-full border border-gray-300 rounded-md p-2 shadow-sm focus:ring-blue-500">
-                            <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, JPEG. Maks: 2MB.</p>
-                            @error('gambar_profil') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                        </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">NIM</label>
+                        <input type="text" name="nim" value="{{ old('nim') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Contoh: 12345678">
+                        @error('nim') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                     </div>
 
-                    <div class="mt-6 flex justify-end gap-3 border-t pt-6">
-                        <a href="{{ route('mahasiswa.index') }}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded">Batal</a>
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold transition">Simpan Data</button>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                        <input type="text" name="nama" value="{{ old('nama') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Nama sesuai KTM">
+                        @error('nama') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Program Studi</label>
+                        <select name="prodi_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <option value="">-- Pilih Prodi --</option>
+                            @foreach($prodi as $p)
+                                <option value="{{ $p->id }}" {{ old('prodi_id') == $p->id ? 'selected' : '' }}>{{ $p->nama_prodi }}</option>
+                            @endforeach
+                        </select>
+                        @error('prodi_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Dosen Pembimbing</label>
+                        <select name="dosen_pembimbing_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <option value="">-- Pilih Dosen Pembimbing --</option>
+                            @foreach($dosens as $dosen)
+                                <option value="{{ $dosen->id }}" {{ old('dosen_pembimbing_id') == $dosen->id ? 'selected' : '' }}>
+                                    {{ $dosen->nama_dosen }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('dosen_pembimbing_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Alamat</label>
+                        <textarea name="alamat" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">{{ old('alamat') }}</textarea>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700">Foto Profil</label>
+                        <input type="file" name="gambar_profil" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+
+                    <div class="flex items-center justify-end">
+                        <a href="{{ route('admin.mahasiswa.index') }}" class="text-sm font-medium text-gray-600 hover:text-gray-900 mr-4">Batal</a>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl shadow-lg transition-all">Simpan Data</button>
                     </div>
                 </form>
 

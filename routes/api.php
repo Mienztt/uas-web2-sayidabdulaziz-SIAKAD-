@@ -8,4 +8,5 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::apiResource('mahasiswa', MahasiswaController::class);
+// PERBAIKAN: Tambahkan 'as' => 'api.' agar namanya tidak bentrok dengan web
+Route::apiResource('mahasiswa', MahasiswaController::class, ['as' => 'api']);

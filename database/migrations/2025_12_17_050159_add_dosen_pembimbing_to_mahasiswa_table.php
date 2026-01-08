@@ -15,7 +15,7 @@ return new class extends Migration
             $table->foreignId('dosen_pembimbing_id')
                   ->nullable()
                   ->after('prodi_id')
-                  ->constrained('users') 
+                  ->constrained('dosens') 
                   ->onDelete('set null');
         });
     }

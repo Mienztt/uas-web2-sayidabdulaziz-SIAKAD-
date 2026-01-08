@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* TAMBAHKAN KODE INI DI BAWAH */
+@layer base {
+    a {
+        @apply no-underline; /* Mematikan underline default pada link */
+    }
+
+    a:hover {
+        @apply no-underline; /* Memastikan saat di-hover juga tidak muncul */
+    }
+}

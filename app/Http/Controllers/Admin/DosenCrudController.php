@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Dosen; // Import Model Dosen
+use App\Models\User; // <-- TAMBAHKAN INI (Wajib)
+use App\Models\Dosen;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class DosenCrudController extends Controller
 {
@@ -26,72 +29,83 @@ class DosenCrudController extends Controller
     }
 
     /**
-     * CREATE (STORE): Menyimpan data dosen baru
+     * CREATE (STORE): Menyimpan data dosen baru + Buat Akun User
      */
     public function store(Request $request)
     {
-        // Validasi
+        // 1. Validasi Input
         $request->validate([
-            'nama_dosen' => 'required|string|max:255|unique:dosens',
-            'inisial' => 'nullable|string|max:10',
+            'nidn' => 'required|unique:dosens,nidn',
+            'nama_dosen' => 'required',
+            'email' => 'required|email|unique:users,email',
+            // sesuaikan dengan field di tabel dosens kamu
         ]);
 
-        // Simpan ke database
-        Dosen::create($request->all());
+        try {
+            // Gunakan Database Transaction agar aman
+            DB::transaction(function () use ($request) {
+                
+                // 2. Buat Akun User untuk Login
+                $user = User::create([
+                    'name' => $request->nama_dosen,
+                    'email' => $request->email,
+                    'password' => Hash::make('password123'), // Password default
+                ]);
 
-        return redirect()->route('admin.dosens.index')
-                         ->with('success', 'Dosen baru berhasil ditambahkan.');
+                // 3. Berikan Role Dosen (Menggunakan Spatie)
+                $user->assignRole('Dosen');
+
+                // 4. Simpan ke Tabel Dosen
+                Dosen::create([
+                    'nidn' => $request->nidn,
+                    'nama_dosen' => $request->nama_dosen,
+                    'user_id' => $user->id, // Menghubungkan ke ID User yang baru dibuat
+                ]);
+            });
+
+            return redirect()->route('admin.dosens.index')->with('success', 'Dosen dan Akun Login (password: password123) berhasil dibuat!');
+            
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+        }
     }
 
     /**
-     * (Method 'show' tidak kita gunakan untuk saat ini)
-     */
-    public function show(Dosen $dosen)
-    {
-        return abort(404);
-    }
-
-    /**
-     * UPDATE (FORM): Menampilkan formulir edit dosen
+     * UPDATE (FORM)
      */
     public function edit(Dosen $dosen)
     {
-        // $dosen diambil otomatis oleh Laravel (Route Model Binding)
         return view('admin.dosen.edit', compact('dosen'));
     }
 
     /**
-     * UPDATE (SAVE): Menyimpan perubahan data dosen
+     * UPDATE (SAVE)
      */
     public function update(Request $request, Dosen $dosen)
     {
-        // Validasi
         $request->validate([
-            // 'unique' diabaikan jika nama_dosen tidak berubah
-            'nama_dosen' => 'required|string|max:255|unique:dosens,nama_dosen,' . $dosen->id,
-            'inisial' => 'nullable|string|max:10',
+            'nama_dosen' => 'required|string|max:255',
+            'nidn' => 'required|unique:dosens,nidn,' . $dosen->id,
         ]);
 
-        // Update data
         $dosen->update($request->all());
 
-        return redirect()->route('admin.dosens.index')
-                         ->with('success', 'Data Dosen berhasil diperbarui.');
+        return redirect()->route('admin.dosens.index')->with('success', 'Data Dosen berhasil diperbarui.');
     }
 
     /**
-     * DELETE: Menghapus data dosen
+     * DELETE
      */
     public function destroy(Dosen $dosen)
     {
         try {
+            // Jika ingin menghapus user-nya juga saat dosen dihapus:
+            // if ($dosen->user_id) { User::find($dosen->user_id)->delete(); }
+            
             $dosen->delete();
-            return redirect()->route('admin.dosens.index')
-                             ->with('success', 'Data Dosen berhasil dihapus.');
+            return redirect()->route('admin.dosens.index')->with('success', 'Data Dosen berhasil dihapus.');
         } catch (\Illuminate\Database\QueryException $e) {
-            // Menangkap error jika dosen masih terpakai di tabel 'jadwal'
-            return redirect()->route('admin.dosens.index')
-                             ->with('error', 'Data Dosen tidak bisa dihapus karena masih digunakan di tabel jadwal.');
+            return redirect()->route('admin.dosens.index')->with('error', 'Gagal hapus! Dosen masih terkait dengan data lain (seperti jadwal).');
         }
     }
 }

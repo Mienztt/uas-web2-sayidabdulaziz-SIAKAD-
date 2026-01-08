@@ -40,7 +40,7 @@ class ShiftCrudController extends Controller
         Shift::create($request->all());
 
         return redirect()->route('admin.shifts.index')
-                         ->with('success', 'Shift baru berhasil ditambahkan.');
+        ->with('success', 'Shift baru berhasil ditambahkan.');
     }
 
     /**

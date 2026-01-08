@@ -4,33 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo; // Jangan lupa import
 
 class Mahasiswa extends Model
 {
     use HasFactory;
-    
+
     protected $table = 'mahasiswa';
-    
+
+    // FIX: Pastikan semua kolom ini ada di fillable
     protected $fillable = [
         'nim',
         'nama',
         'alamat',
         'prodi_id',
-        'dosen_pembimbing_id', 
+        'dosen_pembimbing_id',
         'gambar_profil',
     ];
 
-    // Relasi ke Prodi (Sudah ada)
-    public function prodi(): BelongsTo
+    public function prodi()
     {
         return $this->belongsTo(Prodi::class, 'prodi_id');
     }
 
-    // Relasi ke Dosen Pembimbing (Baru)
-    public function dosenPembimbing(): BelongsTo
+    public function dosenPembimbing()
     {
-        // Menghubungkan ke tabel 'users' menggunakan foreign key 'dosen_pembimbing_id'
-        return $this->belongsTo(User::class, 'dosen_pembimbing_id');
+        // Relasi ke tabel dosens (pastikan nama tabel & foreign key benar)
+        return $this->belongsTo(Dosen::class, 'dosen_pembimbing_id');
     }
 }
